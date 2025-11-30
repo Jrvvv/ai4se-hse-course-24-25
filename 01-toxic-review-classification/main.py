@@ -1,7 +1,5 @@
 import argparse
 from pathlib import Path
-
-# Исправляем импорт согласно структуре проекта
 from toxic_clf.data import load_dataset, prepare, save_dataset
 from toxic_clf.models import classifier
 
@@ -60,7 +58,6 @@ def parse_args():
 def prepare_data(args):
     """Подготовка датасета с обработкой ошибок"""
     try:
-        # Проверяем существование входного файла
         if not args.input.exists():
             raise FileNotFoundError(f"Файл {args.input} не найден")
         
@@ -80,7 +77,6 @@ def prepare_data(args):
 def classify(args):
     """Классификация с обработкой ошибок"""
     try:
-        # Проверяем существование датасета
         if not args.dataset.exists():
             raise FileNotFoundError(f"Подготовленный датасет {args.dataset} не найден. Сначала выполните prepare-data.")
         
@@ -88,7 +84,10 @@ def classify(args):
         dataset = load_dataset(args.dataset)
         
         print(f"Запуск классификации с моделью: {args.model}")
-        classifier(dataset, args.model)
+        result = classifier(dataset, args.model)
+        
+        print("Классификация завершена успешно!")
+        return result
         
     except Exception as e:
         print(f"Ошибка при классификации: {e}")

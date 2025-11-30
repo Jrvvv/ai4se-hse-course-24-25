@@ -1,5 +1,21 @@
-datasets==2.20.0
-evaluate==0.4.2
+# Core ML libraries
 numpy==1.26.4
 scikit-learn==1.5.1
+pandas>=2.0.0
+
+# Transformers and deep learning
+torch>=2.0.0
+transformers==4.30.0
+datasets==2.20.0
+accelerate>=0.20.0
+evaluate==0.4.2
+
+# Utilities
 tqdm==4.66.4
+matplotlib>=3.7.0
+seaborn>=0.12.0
+openpyxl>=3.0.0
+
+# Optional for specific models
+sentencepiece>=0.1.99
+protobuf>=3.20.0
