@@ -328,15 +328,18 @@ class CodeReviewDataPreprocessor:
             print("-" * 40)
 
 
-# Пример использования с валидацией
 def main():
     preprocessor = CodeReviewDataPreprocessor()
 
     # Валидация паттернов перед обработкой
     preprocessor.validate_obscene_patterns()
 
-    # Загрузка данных из Excel
-    preprocessor.load_excel_data(filepath="ToxiCR/models/code-review-dataset-full.xlsx", text_column='review_text', label_column='label')
+    # Загрузка данных из Excel (исправленный путь)
+    preprocessor.load_excel_data(
+        filepath="toxic_clf/dataset/code-review-dataset-full.xlsx", 
+        text_column='review_text', 
+        label_column='label'
+    )
 
     # Анализ распределения obscene слов
     preprocessor.explore_obscene_words_distribution()
@@ -348,7 +351,3 @@ def main():
     # Сохранение результатов
     preprocessor.df.to_excel("cleaned_code_reviews.xlsx", index=False)
     print("Очищенные данные сохранены в 'cleaned_code_reviews.xlsx'")
-
-
-if __name__ == "__main__":
-    main()

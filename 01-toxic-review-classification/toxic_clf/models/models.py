@@ -400,6 +400,35 @@ class CodeReviewClassifier:
 
         return results_df
 
+    def load_from_datasets(self, dataset):
+        """Загрузка данных из datasets.Dataset"""
+        try:
+            # Создаем DataFrame из datasets.Dataset
+            df_data = {
+                'cleaned_text': dataset['text'],
+                'original_text': dataset['original_text']
+            }
+            
+            # Добавляем метки если они есть
+            if 'labels' in dataset.column_names:
+                df_data['is_toxic'] = dataset['labels']
+            else:
+                print("⚠️ Внимание: метки не найдены. Созданы фиктивные метки.")
+                df_data['is_toxic'] = [0] * len(dataset)
+            
+            self.df = pd.DataFrame(df_data)
+            
+            # Проверка качества данных
+            print(f"Успешно загружено данных: {self.df.shape}")
+            print(f"Колонки: {list(self.df.columns)}")
+            print(f"Распределение меток:\n{self.df['is_toxic'].value_counts()}")
+            
+            return self.df
+            
+        except Exception as e:
+            print(f"Ошибка при загрузке из datasets: {e}")
+            raise
+
     def run_complete_pipeline(self):
         """Запуск полного пайплайна"""
         print("=== ЗАПУСК ПОЛНОГО ПАЙПЛАЙНА КЛАССИФИКАЦИИ ===")
