@@ -1,4 +1,3 @@
-from .models import CodeReviewClassifier
-from .classifier import classifier
+from .models import CodeReviewClassifier, classifier
 
 __all__ = ['CodeReviewClassifier', 'classifier']
