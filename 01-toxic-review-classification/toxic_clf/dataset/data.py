@@ -166,25 +166,6 @@ class CodeReviewDataPreprocessor:
             print(f"Error loading Excel file: {e}")
             raise
 
-    def validate_obscene_patterns(self, test_texts=None):
-        """
-        Validate obscene patterns on test texts
-        """
-        if test_texts is None:
-            test_texts = ["This is dumb code", "This is d-u-m-b code", "What a shitty implementation",
-                "This is s h i t", "This is sh*t", "This is a good implementation"  # negative example
-            ]
-
-        print("\n" + "=" * 50)
-        print("OBSCENE PATTERNS VALIDATION")
-        print("=" * 50)
-
-        for test_text in test_texts:
-            cleaned = self.correct_obscene_words(test_text)
-            print(f"BEFORE: {test_text}")
-            print(f"AFTER: {cleaned}")
-            print("-" * 40)
-
     def explore_obscene_words_distribution(self):
         """
         Analyze obscene words distribution in dataset
@@ -302,9 +283,6 @@ class CodeReviewDataPreprocessor:
 
 def main():
     preprocessor = CodeReviewDataPreprocessor()
-
-    # Pattern validation before processing
-    preprocessor.validate_obscene_patterns()
 
     # Load data from Excel (corrected path)
     preprocessor.load_excel_data(
