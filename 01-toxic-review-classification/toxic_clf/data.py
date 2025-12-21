@@ -27,7 +27,7 @@ def prepare(raw_data: Path) -> datasets.Dataset:
 
     # Очистка и предобработка
     preprocessor.clean_data()
-    preprocessor.preprocess_dataset(show_examples=True)
+    preprocessor.preprocess_dataset()
 
     # СОХРАНЕНИЕ В EXCEL
     output_excel = Path("cleaned_code_reviews.xlsx")

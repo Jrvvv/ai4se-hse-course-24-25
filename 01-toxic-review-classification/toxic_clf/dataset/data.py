@@ -159,9 +159,6 @@ class CodeReviewDataPreprocessor:
             self.text_column = text_column
             self.label_column = label_column
 
-            print(f"\nFirst 3 rows of data:")
-            print(self.df.head(3))
-
         except Exception as e:
             print(f"Error loading Excel file: {e}")
             raise
@@ -201,8 +198,9 @@ class CodeReviewDataPreprocessor:
         if not isinstance(text, str):
             return ""
 
-        processing_pipeline = [self.remove_urls, self.remove_code_snippets, self.expand_contractions,
-            self.remove_repeated_chars, self.correct_obscene_words,  # obscene words correction
+        processing_pipeline = [self.remove_urls, self.remove_code_snippets, self.normalize_file_paths, 
+            self.expand_contractions, self.normalize_numbers,
+            self.remove_repeated_chars, self.correct_obscene_words,
             self.remove_special_chars, self.additional_cleaning]
 
         for func in processing_pipeline:
@@ -223,12 +221,41 @@ class CodeReviewDataPreprocessor:
         code_pattern = r'```.*?```|`.*?`'
         return re.sub(code_pattern, '', text, flags=re.IGNORECASE | re.DOTALL)
 
+    def normalize_file_paths(self, text):
+        path_patterns = [
+            r'\b[\w\-_]+/[\w\-_/.]+\.(java|py|js|ts|cpp|c|hpp|h|go|rs|txt|log|cfg|mk|mak|cmake)',  # files with exstensions
+            r'\b(?:\./|\.\./|/)[\w\-_/.]+',  # rel/abs pathes
+            r'\b\w+:\\\\[\w\-_\\\\.]+',  # Windows pathes
+        ]
+        for pattern in path_patterns:
+            text = re.sub(pattern, ' file_path ', text, flags=re.IGNORECASE)
+        return text
+
     def expand_contractions(self, text):
         if not isinstance(text, str):
             return ""
         text = text.lower()
         for contraction, expansion in self.contraction_map.items():
             text = re.sub(contraction, expansion, text, flags=re.IGNORECASE)
+        return text
+
+    def normalize_numbers(self, text):
+        # hex
+        hex_pattern = r'\b0x[0-9A-Fa-f]+\b'
+        text = re.sub(hex_pattern, ' num ', text)
+        # bin
+        binary_pattern = r'\b0b[01]+\b'
+        text = re.sub(binary_pattern, ' num ', text)
+        # oct
+        octal_pattern = r'\b0o[0-7]+\b'
+        text = re.sub(octal_pattern, ' num ', text)
+        # dec
+        decimal_pattern = r'\b\d+\b'
+        text = re.sub(decimal_pattern, ' num ', text)
+        # float
+        float_pattern = r'\b\d+\.\d+\b'
+        text = re.sub(float_pattern, ' num ', text)
+
         return text
 
     def remove_repeated_chars(self, text):
