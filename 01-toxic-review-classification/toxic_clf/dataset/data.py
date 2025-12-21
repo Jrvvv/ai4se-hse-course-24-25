@@ -279,25 +279,3 @@ class CodeReviewDataPreprocessor:
         initial_size = len(self.df)
         self.df = self.df[self.df['cleaned_text'].str.len() > 0]
         print(f"Removed empty texts after cleaning: {initial_size - len(self.df)}")
-
-
-def main():
-    preprocessor = CodeReviewDataPreprocessor()
-
-    # Load data from Excel (corrected path)
-    preprocessor.load_excel_data(
-        filepath="toxic_clf/dataset/code-review-dataset-full.xlsx", 
-        text_column='review_text', 
-        label_column='label'
-    )
-
-    # Obscene words distribution analysis
-    preprocessor.explore_obscene_words_distribution()
-
-    # Cleaning and preprocessing
-    preprocessor.clean_data()
-    preprocessor.preprocess_dataset(show_examples=True)
-
-    # Save results
-    preprocessor.df.to_excel("cleaned_code_reviews.xlsx", index=False)
-    print("Cleaned data saved to 'cleaned_code_reviews.xlsx'")

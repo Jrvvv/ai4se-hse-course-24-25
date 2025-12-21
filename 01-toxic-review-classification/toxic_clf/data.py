@@ -14,10 +14,7 @@ def prepare(raw_data: Path) -> datasets.Dataset:
     
     # Инициализация препроцессора
     preprocessor = CodeReviewDataPreprocessor()
-    
-    # Валидация паттернов перед обработкой
-    preprocessor.validate_obscene_patterns()
-    
+
     # Загрузка данных из Excel
     preprocessor.load_excel_data(
         filepath=str(raw_data), 
@@ -27,17 +24,17 @@ def prepare(raw_data: Path) -> datasets.Dataset:
     
     # Анализ распределения obscene слов
     preprocessor.explore_obscene_words_distribution()
-    
-    # Очистка и предобработка (как в оригинальном main())
+
+    # Очистка и предобработка
     preprocessor.clean_data()
     preprocessor.preprocess_dataset(show_examples=True)
-    
-    # СОХРАНЕНИЕ В EXCEL КАК В ОРИГИНАЛЬНОМ MAIN()
+
+    # СОХРАНЕНИЕ В EXCEL
     output_excel = Path("cleaned_code_reviews.xlsx")
     preprocessor.df.to_excel(output_excel, index=False)
     print(f"Очищенные данные сохранены в '{output_excel}'")
-    
-    # Теперь создаем datasets.Dataset из обработанных данных для дальнейшего использования
+
+    # Cоздаем datasets.Dataset из обработанных данных для дальнейшего использования
     dataset_dict = {
         'text': preprocessor.df['cleaned_text'].tolist(),
         'original_text': preprocessor.df['original_text'].tolist(),
