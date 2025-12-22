@@ -74,6 +74,8 @@ class CodeReviewClassifier:
             print(f"Error loading data: {e}")
             raise
 
+    # 20% of cases -- for testing group
+    # stratify by is_toxic -- the same % of total amount in train and test groups
     def prepare_data(self, test_size=0.2, random_state=42):
         """Data preparation and splitting"""
         # Train-test split
@@ -89,10 +91,18 @@ class CodeReviewClassifier:
         """Text vectorization using CountVectorizer and TfidfVectorizer"""
         vectorizers = {}
 
+        # Only 10000 of the most used tokens
+        # Max grouping is 3 words
+        # Delete stop words (the, in, of etc)
+        # Ignore words with frequency less than 2 (if it's only in 1 document)
+        # Ignore words repeated in more than 95% of documents
         if method in ['count', 'both']:
             # CountVectorizer
-            count_vectorizer = CountVectorizer(max_features=5000, ngram_range=(1, 2), stop_words='english', min_df=2,
-                max_df=0.8)
+            count_vectorizer = CountVectorizer(max_features=10000,
+                                               ngram_range=(1, 3),
+                                               stop_words='english',
+                                               min_df=2,
+                                               max_df=0.95)
             X_train_count = count_vectorizer.fit_transform(self.X_train.astype(str))
             X_test_count = count_vectorizer.transform(self.X_test.astype(str))
             vectorizers['count'] = {'vectorizer': count_vectorizer, 'X_train': X_train_count, 'X_test': X_test_count}
@@ -100,8 +110,12 @@ class CodeReviewClassifier:
 
         if method in ['tfidf', 'both']:
             # TfidfVectorizer
-            tfidf_vectorizer = TfidfVectorizer(max_features=5000, ngram_range=(1, 2), stop_words='english', min_df=2,
-                max_df=0.8, sublinear_tf=True)
+            tfidf_vectorizer = TfidfVectorizer(max_features=10000,
+                                               ngram_range=(1, 3),
+                                               stop_words='english',
+                                               min_df=2,
+                                               max_df=0.95,
+                                               sublinear_tf=True)
             X_train_tfidf = tfidf_vectorizer.fit_transform(self.X_train.astype(str))
             X_test_tfidf = tfidf_vectorizer.transform(self.X_test.astype(str))
             vectorizers['tfidf'] = {'vectorizer': tfidf_vectorizer, 'X_train': X_train_tfidf, 'X_test': X_test_tfidf}
@@ -113,6 +127,9 @@ class CodeReviewClassifier:
     def train_classical_models(self):
         """Training classical models with cross-validation"""
         models = {}
+        # Cross-validation:
+        # 10 parts -- 9 for training, 1 for testin
+        # Shuffle before deviding
         kfold = KFold(n_splits=10, shuffle=True, random_state=42)
 
         for vec_name, vec_data in self.vectorizers.items():
@@ -122,10 +139,12 @@ class CodeReviewClassifier:
             X_test = vec_data['X_test']
 
             # Logistic Regression
+            # regularization penalty = 0.1 (strong), a lot of different features (words)
             lr_params = {'C': 0.1, 'max_iter': 1000, 'random_state': 42, 'class_weight': 'balanced'}
             lr = LogisticRegression(**lr_params)
 
             # Cross-validation
+            # F1 = 2 * (Precision * Recall) / (Precision + Recall)
             lr_scores = cross_val_score(lr, X_train, self.y_train, cv=kfold, scoring='f1_weighted')
             print(f"Logistic Regression CV F1-score: {lr_scores.mean():.4f} (+/- {lr_scores.std() * 2:.4f})")
 
@@ -134,11 +153,15 @@ class CodeReviewClassifier:
             lr_pred = lr.predict(X_test)
 
             # Random Forest
-            rf_params = {'n_estimators': 100, 'max_depth': 20, 'random_state': 42, 'n_jobs': -1,
+            # 100 trees
+            # max depth of tree is 10
+            # use all cpu cores
+            rf_params = {'n_estimators': 100, 'max_depth': 10, 'random_state': 42, 'n_jobs': -1,
                 'class_weight': 'balanced'}
             rf = RandomForestClassifier(**rf_params)
 
             # Cross-validation
+            # F1 = 2 * (Precision * Recall) / (Precision + Recall)
             rf_scores = cross_val_score(rf, X_train, self.y_train, cv=kfold, scoring='f1_weighted')
             print(f"Random Forest CV F1-score: {rf_scores.mean():.4f} (+/- {rf_scores.std() * 2:.4f})")
 
@@ -171,7 +194,10 @@ class CodeReviewClassifier:
             precision, recall, f1, _ = precision_recall_fscore_support(self.y_test, y_pred, average='weighted')
 
             self.results[model_name] = {'accuracy': accuracy, 'precision': precision, 'recall': recall, 'f1_score': f1}
-
+            # Accuracy = (TP + TN) / (TP + TN + FP + FN)
+            # Precision = TP / (TP + FP) -- how much toxic definition is true
+            # Recall = TP / (TP + FN) -- what is the part of right-defined toxic comments
+            # F1 = 2 × (Precision × Recall) / (Precision + Recall)
             print(f"\n--- {model_name.upper()} ---")
             print(f"Accuracy: {accuracy:.4f}")
             print(f"Precision: {precision:.4f}")
@@ -200,9 +226,12 @@ class CodeReviewClassifier:
             X_train = self.vectorizers['tfidf']['X_train']
 
             # Tuning for Logistic Regression
-            lr_param_grid = {'C': [0.01, 0.1, 1, 10], 'penalty': ['l1', 'l2'], 'solver': ['liblinear']}
+            lr_param_grid = {'C': [0.01, 0.1, 1, 10],
+                             'penalty': ['l1', 'l2'],
+                             'solver': ['liblinear']}
 
             lr = LogisticRegression(max_iter=1000, random_state=42, class_weight='balanced')
+            # 5 folds: 4 for training, 1 for testing
             lr_grid_search = GridSearchCV(lr, lr_param_grid, cv=5, scoring='f1_weighted', n_jobs=-1)
             lr_grid_search.fit(X_train, self.y_train)
 
@@ -210,10 +239,12 @@ class CodeReviewClassifier:
             print(f"Best F1-score: {lr_grid_search.best_score_:.4f}")
 
             # Tuning for Random Forest
-            rf_param_grid = {'n_estimators': [50, 100, 200], 'max_depth': [10, 20, None],
-                'min_samples_split': [2, 5, 10]}
+            rf_param_grid = {'n_estimators': [50, 150],
+                             'max_depth': [10, 20, None],
+                             'min_samples_split': [5, 10]}
 
             rf = RandomForestClassifier(random_state=42, class_weight='balanced', n_jobs=-1)
+            # 5 folds: 4 for training, 1 for testing
             rf_grid_search = GridSearchCV(rf, rf_param_grid, cv=5, scoring='f1_weighted', n_jobs=-1)
             rf_grid_search.fit(X_train, self.y_train)
 
