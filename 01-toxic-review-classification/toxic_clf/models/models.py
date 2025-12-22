@@ -220,7 +220,7 @@ class CodeReviewClassifier:
             print(f"Лучшие параметры для Random Forest: {rf_grid_search.best_params_}")
             print(f"Лучший F1-score: {rf_grid_search.best_score_:.4f}")
 
-    # TRANSFORMER MODELS - УЛУЧШЕННАЯ ВЕРСИЯ
+    # TRANSFORMER MODELS
     def create_tokenize_function(self, tokenizer):
         """Создаем сериализуемую функцию для токенизации"""
 
@@ -414,35 +414,6 @@ class CodeReviewClassifier:
             if 'labels' in dataset.column_names:
                 df_data['is_toxic'] = dataset['labels']
             else:
-                print("⚠️ Внимание: метки не найдены. Созданы фиктивные метки.")
-                df_data['is_toxic'] = [0] * len(dataset)
-            
-            self.df = pd.DataFrame(df_data)
-            
-            # Проверка качества данных
-            print(f"Успешно загружено данных: {self.df.shape}")
-            print(f"Колонки: {list(self.df.columns)}")
-            print(f"Распределение меток:\n{self.df['is_toxic'].value_counts()}")
-            
-            return self.df
-            
-        except Exception as e:
-            print(f"Ошибка при загрузке из datasets: {e}")
-            raise
-
-    def load_from_datasets(self, dataset):
-        """Загрузка данных из datasets.Dataset"""
-        try:
-            # Создаем DataFrame из datasets.Dataset
-            df_data = {
-                'cleaned_text': dataset['text'],
-                'original_text': dataset['original_text']
-            }
-            
-            # Добавляем метки если они есть
-            if 'labels' in dataset.column_names:
-                df_data['is_toxic'] = dataset['labels']
-            else:
                 print("Внимание: метки не найдены. Созданы фиктивные метки.")
                 df_data['is_toxic'] = [0] * len(dataset)
             
@@ -494,30 +465,12 @@ def classifier(dataset, model_name):
     print(f"Запуск классификации с моделью: {model_name}")
     print(f"Размер датасета: {len(dataset)}")
     
-    # Сохраняем датасет во временный Excel файл для CodeReviewClassifier
-    temp_excel = Path("temp_cleaned_reviews.xlsx")
-    
-    # Создаем DataFrame из datasets.Dataset
-    df_data = {
-        'cleaned_text': dataset['text'],
-        'original_text': dataset['original_text']
-    }
-    
-    # Добавляем метки если они есть
-    if 'labels' in dataset.column_names:
-        df_data['is_toxic'] = dataset['labels']
-    else:
-        # Если меток нет, создаем фиктивные для совместимости
-        print("Внимание: метки не найдены в датасете. Созданы фиктивные метки.")
-        df_data['is_toxic'] = [0] * len(dataset)
-    
-    df = pd.DataFrame(df_data)
-    df.to_excel(temp_excel, index=False)
-    print(f"Временный файл создан: {temp_excel}")
-    
+    # Читаем очищенный датасет
+    excel_clean = Path("cleaned_code_reviews.xlsx")
+
     # Инициализируем классификатор
-    clf = CodeReviewClassifier(str(temp_excel))
-    
+    clf = CodeReviewClassifier(str(excel_clean))
+
     # Запускаем соответствующий пайплайн в зависимости от модели
     if model_name == 'classic_ml':
         print("=== ЗАПУСК КЛАССИЧЕСКИХ МОДЕЛЕЙ ===")
@@ -541,13 +494,8 @@ def classifier(dataset, model_name):
     report = clf.generate_report()
     
     # Очищаем временный файл
-    if temp_excel.exists():
-        temp_excel.unlink()
-        print(f"Временный файл удален: {temp_excel}")
+    if excel_clean.exists():
+        excel_clean.unlink()
+        print(f"Временный файл удален: {excel_clean}")
     
     return report
-
-
-if __name__ == "__main__":
-    classifier = CodeReviewClassifier("cleaned_code_reviews.xlsx")
-    report = classifier.run_complete_pipeline()
