@@ -458,18 +458,17 @@ class CodeReviewClassifier:
 
         return report
 
-def classifier(dataset, model_name):
+def classifier(dataset_path, model_name):
     """
     Классификатор для интерфейса из main.py
     """
     print(f"Запуск классификации с моделью: {model_name}")
-    print(f"Размер датасета: {len(dataset)}")
     
     # Читаем очищенный датасет
-    excel_clean = Path("cleaned_code_reviews.xlsx")
+    excel_dataset_path = dataset_path
 
     # Инициализируем классификатор
-    clf = CodeReviewClassifier(str(excel_clean))
+    clf = CodeReviewClassifier(str(excel_dataset_path))
 
     # Запускаем соответствующий пайплайн в зависимости от модели
     if model_name == 'classic_ml':
@@ -479,23 +478,18 @@ def classifier(dataset, model_name):
         clf.train_classical_models()
         clf.evaluate_classical_models()
         clf.hyperparameter_tuning()
-        
+
     elif model_name == 'roberta':
         print("=== ЗАПУСК RoBERTa ===")
         clf.prepare_data()
         clf.train_roberta()
-        
+
     elif model_name == 'microsoft/codebert-base':
         print("=== ЗАПУСК CodeBERT ===")
         clf.prepare_data()
         clf.train_codebert()
-    
+
     # Генерируем отчет
     report = clf.generate_report()
-    
-    # Очищаем временный файл
-    if excel_clean.exists():
-        excel_clean.unlink()
-        print(f"Временный файл удален: {excel_clean}")
-    
+
     return report
