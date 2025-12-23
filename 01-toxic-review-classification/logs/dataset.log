@@ -1,0 +1,20 @@
+ANALYSIS OF OBSCENE WORDS IN DATASET:
+Texts with obscene words: 1779/19651 (9.05%)
+
+Examples of texts with obscene words:
+- No, the internal is for services.
+ 
+ Splitting on ports is a dumb way to do security, but we are stu...
+- Okie dokie. We should probably note that in reflection docstring, pretty sure thats cause py2.x is d...
+- In the future, we should look into seeing if we make this a little cleaner instead of a crap load of...
+- I have a doubt (which could be dumb). 'fqdn' should be resolved with in the namespace context or the...
+- Might be cleaner to write an OCP that wraps this and prunes out the downloads... I know that's a lot...
+Initial data size: 19651
+Removed missing values: 4
+Removed empty texts: 0
+Removed duplicates: 6797
+Final data size: 12850
+
+Starting text preprocessing...
+Removed empty texts after cleaning: 2
+Data preparation completed successfully!

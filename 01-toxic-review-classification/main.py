@@ -44,7 +44,7 @@ def parse_args():
     predict_parser.add_argument(
         '-m',
         '--model',
-        choices=['classic_ml', 'microsoft/codebert-base', 'roberta'],
+        choices=['classic_ml', 'codebert-base', 'roberta'],
         default='classic_ml',
         help='Model for classification'
     )

@@ -1,0 +1,126 @@
+Data check:
+Number of records: 12848
+Missing values in cleaned_text: 4
+Missing values in is_toxic: 0
+Unique values in is_toxic: [0 1]
+Label distribution:
+is_toxic
+0    10356
+1     2492
+Name: count, dtype: int64
+Data after cleaning: 12844 records
+Final label distribution:
+is_toxic
+0    10353
+1     2491
+Name: count, dtype: int64
+=== RUNNING CLASSICAL MODELS ===
+Training set size: 10275
+Test set size: 2569
+Class distribution in training set:
+is_toxic
+0    8282
+1    1993
+Name: count, dtype: int64
+CountVectorizer completed
+TfidfVectorizer completed
+
+--- Training models with COUNT ---
+Logistic Regression CV F1-score: 0.8855 (+/- 0.0212)
+Random Forest CV F1-score: 0.8653 (+/- 0.0260)
+
+Confusion matrix for Logistic Regression (count):
+              precision    recall  f1-score   support
+
+   Non-Toxic       0.94      0.92      0.93      2071
+       Toxic       0.70      0.75      0.72       498
+
+    accuracy                           0.89      2569
+   macro avg       0.82      0.84      0.83      2569
+weighted avg       0.89      0.89      0.89      2569
+
+
+Confusion matrix for Random Forest (count):
+              precision    recall  f1-score   support
+
+   Non-Toxic       0.93      0.91      0.92      2071
+       Toxic       0.65      0.71      0.68       498
+
+    accuracy                           0.87      2569
+   macro avg       0.79      0.81      0.80      2569
+weighted avg       0.87      0.87      0.87      2569
+
+
+--- Training models with TFIDF ---
+Logistic Regression CV F1-score: 0.8744 (+/- 0.0182)
+Random Forest CV F1-score: 0.8644 (+/- 0.0243)
+
+Confusion matrix for Logistic Regression (tfidf):
+              precision    recall  f1-score   support
+
+   Non-Toxic       0.94      0.90      0.92      2071
+       Toxic       0.64      0.78      0.70       498
+
+    accuracy                           0.87      2569
+   macro avg       0.79      0.84      0.81      2569
+weighted avg       0.89      0.87      0.88      2569
+
+
+Confusion matrix for Random Forest (tfidf):
+              precision    recall  f1-score   support
+
+   Non-Toxic       0.93      0.89      0.91      2071
+       Toxic       0.62      0.71      0.66       498
+
+    accuracy                           0.86      2569
+   macro avg       0.77      0.80      0.79      2569
+weighted avg       0.87      0.86      0.86      2569
+
+
+--- LR_COUNT ---
+Accuracy: 0.8879
+Precision: 0.8917
+Recall: 0.8879
+F1-Score: 0.8895
+
+--- RF_COUNT ---
+Accuracy: 0.8696
+Precision: 0.8747
+Recall: 0.8696
+F1-Score: 0.8718
+
+--- LR_TFIDF ---
+Accuracy: 0.8735
+Precision: 0.8858
+Recall: 0.8735
+F1-Score: 0.8779
+
+--- RF_TFIDF ---
+Accuracy: 0.8587
+Precision: 0.8683
+Recall: 0.8587
+F1-Score: 0.8625
+
+--- Hyperparameter tuning ---
+Best parameters for Logistic Regression: {'C': 1, 'penalty': 'l1', 'solver': 'liblinear'}
+Best F1-score: 0.8970
+Best parameters for Random Forest: {'max_depth': None, 'min_samples_split': 10, 'n_estimators': 150}
+Best F1-score: 0.8958
+
+============================================================
+FINAL CLASSIFICATION MODELS REPORT
+============================================================
+
+Model comparison (sorted by F1-score):
+          accuracy  precision  recall  f1_score
+lr_count    0.8879     0.8917  0.8879    0.8895
+lr_tfidf    0.8735     0.8858  0.8735    0.8779
+rf_count    0.8696     0.8747  0.8696    0.8718
+rf_tfidf    0.8587     0.8683  0.8587    0.8625
+
+ BEST MODEL: lr_count
+ F1-Score: 0.8895
+ Accuracy: 0.8879
+ Precision: 0.8917
+ Recall: 0.8879
+Classification completed successfully!

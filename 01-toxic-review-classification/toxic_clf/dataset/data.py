@@ -187,12 +187,6 @@ class CodeReviewDataPreprocessor:
 
         print(f"Texts with obscene words: {obscene_count}/{total_count} ({obscene_count / total_count * 100:.2f}%)")
 
-        if obscene_count > 0:
-            print("\nExamples of texts with obscene words:")
-            obscene_samples = temp_df[temp_df['contains_obscene']].head(5)
-            for idx, row in obscene_samples.iterrows():
-                print(f"- {row[self.text_column][:100]}...")
-
     def preprocess_text(self, text):
         """Full text preprocessing pipeline"""
         if not isinstance(text, str):

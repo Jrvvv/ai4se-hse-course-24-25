@@ -1,0 +1,56 @@
+Data check:
+Number of records: 12848
+Missing values in cleaned_text: 4
+Missing values in is_toxic: 0
+Unique values in is_toxic: [0 1]
+Label distribution:
+is_toxic
+0    10356
+1     2492
+Name: count, dtype: int64
+Data after cleaning: 12844 records
+Final label distribution:
+is_toxic
+0    10353
+1     2491
+Name: count, dtype: int64
+=== RUNNING CodeBERT ===
+Training set size: 10275
+Test set size: 2569
+Class distribution in training set:
+is_toxic
+0    8282
+1    1993
+Name: count, dtype: int64
+
+--- CodeBERT Results ---
+Accuracy: 0.9260
+Precision: 0.9239
+Recall: 0.9260
+F1-Score: 0.9238
+
+Confusion matrix for CodeBERT:
+              precision    recall  f1-score   support
+
+   Non-Toxic       0.94      0.97      0.95      2071
+       Toxic       0.86      0.74      0.79       498
+
+    accuracy                           0.93      2569
+   macro avg       0.90      0.85      0.87      2569
+weighted avg       0.92      0.93      0.92      2569
+
+
+============================================================
+FINAL CLASSIFICATION MODELS REPORT
+============================================================
+
+Model comparison (sorted by F1-score):
+          accuracy  precision  recall  f1_score
+CodeBERT     0.926     0.9239   0.926    0.9238
+
+ BEST MODEL: CodeBERT
+ F1-Score: 0.9238
+ Accuracy: 0.9260
+ Precision: 0.9239
+ Recall: 0.9260
+Classification completed successfully!

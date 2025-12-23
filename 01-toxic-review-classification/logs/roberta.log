@@ -1,0 +1,56 @@
+Data check:
+Number of records: 12848
+Missing values in cleaned_text: 4
+Missing values in is_toxic: 0
+Unique values in is_toxic: [0 1]
+Label distribution:
+is_toxic
+0    10356
+1     2492
+Name: count, dtype: int64
+Data after cleaning: 12844 records
+Final label distribution:
+is_toxic
+0    10353
+1     2491
+Name: count, dtype: int64
+=== RUNNING RoBERTa ===
+Training set size: 10275
+Test set size: 2569
+Class distribution in training set:
+is_toxic
+0    8282
+1    1993
+Name: count, dtype: int64
+
+--- RoBERTa Results ---
+Accuracy: 0.9330
+Precision: 0.9314
+Recall: 0.9330
+F1-Score: 0.9308
+
+Confusion matrix for RoBERTa:
+              precision    recall  f1-score   support
+
+   Non-Toxic       0.94      0.98      0.96      2071
+       Toxic       0.89      0.75      0.81       498
+
+    accuracy                           0.93      2569
+   macro avg       0.91      0.86      0.89      2569
+weighted avg       0.93      0.93      0.93      2569
+
+
+============================================================
+FINAL CLASSIFICATION MODELS REPORT
+============================================================
+
+Model comparison (sorted by F1-score):
+         accuracy  precision  recall  f1_score
+RoBERTa     0.933     0.9314   0.933    0.9308
+
+ BEST MODEL: RoBERTa
+ F1-Score: 0.9308
+ Accuracy: 0.9330
+ Precision: 0.9314
+ Recall: 0.9330
+Classification completed successfully!

@@ -128,7 +128,7 @@ class CodeReviewClassifier:
         """Training classical models with cross-validation"""
         models = {}
         # Cross-validation:
-        # 10 parts -- 9 for training, 1 for testin
+        # 10 parts -- 9 for training, 1 for validation
         # Shuffle before deviding
         kfold = KFold(n_splits=10, shuffle=True, random_state=42)
 
@@ -139,7 +139,7 @@ class CodeReviewClassifier:
             X_test = vec_data['X_test']
 
             # Logistic Regression
-            # regularization penalty = 0.1 (strong), a lot of different features (words)
+            # regularization = 0.1 (strong), a lot of different features (words)
             lr_params = {'C': 0.1, 'max_iter': 1000, 'random_state': 42, 'class_weight': 'balanced'}
             lr = LogisticRegression(**lr_params)
 
@@ -255,6 +255,9 @@ class CodeReviewClassifier:
     def create_tokenize_function(self, tokenizer):
         """Creating a serializable tokenization function"""
 
+        # Complete comments to the same length with padding
+        # Truncate too long comments
+        # Max length -- 256 tokens
         def tokenize_function(examples):
             return tokenizer(examples['text'], padding=True, truncation=True, max_length=256, return_tensors="pt")
 
@@ -323,13 +326,25 @@ class CodeReviewClassifier:
             print(f"Using device: {device}")
 
             # Training parameters optimized to avoid memory overflow
-            training_args = TrainingArguments(output_dir=f'./results_{model_display_name}', num_train_epochs=1,
-                per_device_train_batch_size=4,  # Reduced batch size
-                per_device_eval_batch_size=4, warmup_steps=50,  # Reduced warmup steps
-                weight_decay=0.01, logging_dir=f'./logs_{model_display_name}', logging_steps=10,
+            training_args = TrainingArguments(
+                output_dir=f'./results_{model_display_name}',
+                num_train_epochs=1, # Epochs number (number of trainings on ALL data)
+                per_device_train_batch_size=4, # 4 texts per batch on every training iteration
+                per_device_eval_batch_size=4, # 4 texts per batch on validation
+
+                # Regularization and optimization
+                weight_decay=0.01, # L2 regularization rate (low)
+                warmup_steps=50, # Learning Rate warming up (first 50 steps)
+
+                logging_dir=f'./logs_{model_display_name}',
+                logging_steps=10,
+
                 # Increased to reduce output
-                eval_strategy="epoch", save_strategy="epoch", load_best_model_at_end=True,
-                metric_for_best_model="f1", save_total_limit=1,  # Reduced to save space
+                eval_strategy="epoch", # Check metrics on every new epoch
+                save_strategy="epoch", # Save model on every new epoch
+                load_best_model_at_end=True,
+                metric_for_best_model="f1",
+                save_total_limit=1, # Reduced to save space
                 dataloader_pin_memory=False,  # May help with memory
                 gradient_accumulation_steps=2,  # Gradient accumulation
                 fp16=torch.cuda.is_available(),  # Use mixed precision on GPU
@@ -386,7 +401,7 @@ class CodeReviewClassifier:
 
     def train_codebert(self):
         """Training CodeBERT"""
-        return self.train_transformer('microsoft/codebert-base', 'CodeBERT')
+        return self.train_transformer('codebert-base', 'CodeBERT')
 
     def generate_report(self):
         """Generating report with model comparison"""
@@ -515,7 +530,7 @@ def classifier(dataset_path, model_name):
         clf.prepare_data()
         clf.train_roberta()
 
-    elif model_name == 'microsoft/codebert-base':
+    elif model_name == 'codebert-base':
         print("=== RUNNING CodeBERT ===")
         clf.prepare_data()
         clf.train_codebert()
